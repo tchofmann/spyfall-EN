@@ -10,33 +10,30 @@
       font-family: sans-serif;
       background: #111;
       color: #eee;
+    }
+
+    .app-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      position: relative;
-      pointer-events: none;
-    }
-
-    .screen {
-      display: none;
-      flex-direction: column;
-      gap: 20px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      background: #111;
+      min-height: 100vh;
       padding: 20px;
-      border-radius: 10px;
-      position: relative;
-      z-index: 10;
-      min-height: 60vh; 
-      pointer-events: auto;
+    }
+    
+    .screen { 
+      display: none; 
+      flex-direction: column; 
+      gap: 20px; 
+      width: 90%; 
+      max-width: 400px; 
+      text-align: center; 
+      background: #111; 
+      padding: 20px; 
+      border-radius: 10px; 
     }
     
    .screen.active { 
       display: flex; 
-      pointer-events: auto;
     }
     
     button {
@@ -71,7 +68,7 @@
 </head>
 
 <body>
-
+<div class="app-container">
   <!-- Screen 1: Player Count + Timer -->
   <div id="screen-count" class="screen active">
     <h2>Number of players</h2>
@@ -110,6 +107,7 @@
     <p id="finalSpy"></p>
     <button onclick="restart()">Play Again</button>
   </div>
+</div>
 
 <script>
   const locations = [
