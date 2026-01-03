@@ -144,12 +144,12 @@
     document.getElementById(id).classList.add('active');
   }
 
-  function startNameEntry() {
-    playerCount = parseInt(document.getElementById("playerCount").value);
-    gameMinutes = parseInt(document.getElementById("gameTime").value);
-    showScreen("screen-names");
+  function startNameEntry() { 
+    playerCount = parseInt(document.getElementById("playerCount").value); 
+    gameMinutes = parseInt(document.getElementById("gameTime").value); 
+    showScreen("screen-names"); 
   }
-
+  
   function addName() {
     const input = document.getElementById("nameInput");
     const name = input.value.trim();
