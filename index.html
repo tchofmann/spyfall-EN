@@ -15,6 +15,7 @@
       align-items: center;
       height: 100vh;
       position: relative;
+      pointer-events: none;
     }
 
     .screen {
@@ -23,6 +24,8 @@
       gap: 20px;
       width: 90%;
       max-width: 400px;
+      min-height: 60vh; 
+      pointer-events: auto;
       text-align: center;
       background: #111;
       padding: 20px;
@@ -34,7 +37,11 @@
     .active {
       display: flex;
     }
-
+    
+    .screen.active { 
+      pointer-events: auto;
+    }
+    
     button {
       padding: 12px 20px;
       background: #444;
