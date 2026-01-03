@@ -135,7 +135,7 @@
 
   let playerCount, gameMinutes;
   let names = [];
-  let spyIndex, location;
+  let spyIndex,gameLocation;
   let revealIndex = 0;
   let timerInterval;
 
@@ -172,7 +172,7 @@
 
   function startReveal() {
     spyIndex = Math.floor(Math.random() * playerCount);
-    gamelocation = locations[Math.floor(Math.random() * locations.length)];
+    gameLocation = gamelocations[Math.floor(Math.random() * gamelocations.length)];
     revealIndex = 0;
     prepareRevealScreen();
     showScreen("screen-reveal");
@@ -190,7 +190,7 @@
     if (revealIndex === spyIndex) {
       roleText.textContent = "You are the SPY.";
     } else {
-      roleText.textContent = "Location: " + gamelocation;
+      roleText.textContent = "Location: " + gameLocation;
     }
     document.getElementById("revealButton").style.display = "none";
 
@@ -230,7 +230,7 @@
 
   function endGame() {
     showScreen("screen-final");
-    document.getElementById("finalLocation").textContent = "Location was: " + gamelocation;
+    document.getElementById("finalLocation").textContent = "Location was: " + gameLocation;
     document.getElementById("finalSpy").textContent = "The spy was: " + names[spyIndex];
     const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
     audio.play();
