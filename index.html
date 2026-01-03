@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spy Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      background: #111;
+      padding: 20px;
+      border-radius: 10px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      width: 100%;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+
+    li {
+      padding: 4px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Screen 1: Player Count + Timer -->
+  <div id="screen-count" class="screen active">
+    <h2>Number of players</h2>
+    <input id="playerCount" type="number" min="3" max="20" value="5" />
+    <h3>Game time (minutes)</h3>
+    <input id="gameTime" type="number" min="1" max="20" value="5" />
+    <button onclick="startNameEntry()">Continue</button>
+  </div>
+
+  <!-- Screen 2: Name Entry -->
+  <div id="screen-names" class="screen">
+    <h2>Enter player names</h2>
+    <input id="nameInput" type="text" placeholder="Name" />
+    <button onclick="addName()">Add</button>
+    <ul id="nameList"></ul>
+    <button id="namesContinue" onclick="startReveal()" disabled>Continue</button>
+  </div>
+
+  <!-- Screen 3: Reveal Sequence -->
+  <div id="screen-reveal" class="screen">
+    <h2 id="revealName"></h2>
+    <button id="revealButton" onclick="showRole()">Reveal</button>
+    <p id="roleText" style="font-size:20px;"></p>
+    <button id="nextButton" style="display:none;" onclick="nextReveal()">Next player</button>
+  </div>
+
+  <!-- Screen 4: Countdown -->
+  <div id="screen-timer" class="screen">
+    <h1 id="timerDisplay"></h1>
+  </div>
+
+  <!-- Screen 5: Final Reveal -->
+  <div id="screen-final" class="screen">
+    <h2>Round Over</h2>
+    <p id="finalLocation"></p>
+    <p id="finalSpy"></p>
+    <button onclick="restart()">Play Again</button>
+  </div>
+
+<script>
+  const locations = [
+    "Airport terminal","Train station","Harbor pier","Cruise ship deck","Submarine interior",
+    "Space station","Mountain ski lodge","Beach resort","Desert outpost","Jungle research camp",
+    "Hospital ward","Dentist office","Veterinary clinic","Pharmacy","Ambulance",
+    "Restaurant kitchen","Fine-dining restaurant","Fast-food counter","Food truck","Bakery",
+    "Supermarket","Farmer’s market","Shopping mall","Toy store","Hardware store",
+    "Office building","Conference center","Co-working space","Call center","Factory floor",
+    "Construction site","Warehouse","Power plant","Oil rig","Mining tunnel",
+    "Police station","Fire station","Courtroom","Prison yard","Border checkpoint",
+    "High school classroom","University lecture hall","Library","Science lab","Art studio",
+    "Movie theater","TV studio","Radio station","Concert hall","Backstage dressing room",
+    "Football stadium","Swimming pool","Tennis court","Bowling alley","Gym",
+    "Zoo","Aquarium","Botanical garden","National park trail","Campground",
+    "Museum gallery","History museum","Art museum","Planetarium","Archaeological dig site",
+    "Hotel lobby","Hotel room","Hostel common area","Bed-and-breakfast","Ski chalet",
+    "Subway car","Bus stop","Taxi","Parking garage","Gas station",
+    "Amusement park","Water park","Arcade","Carnival midway","Escape room",
+    "Church","Temple","Cemetery","Monastery","Wedding venue",
+    "Bank lobby","ATM kiosk","Stock exchange floor","Post office","Insurance office",
+    "Kitchen supply store","Garden center","Pet store","Music shop","Bookstore",
+    "Rooftop terrace","Underground bunker","Luxury yacht","Snowy mountain pass","City park"
+  ];
+
+  let playerCount, gameMinutes;
+  let names = [];
+  let spyIndex, location;
+  let revealIndex = 0;
+  let timerInterval;
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startNameEntry() {
+    playerCount = parseInt(document.getElementById("playerCount").value);
+    gameMinutes = parseInt(document.getElementById("gameTime").value);
+    showScreen("screen-names");
+  }
+
+  function addName() {
+    const input = document.getElementById("nameInput");
+    const name = input.value.trim();
+    if (!name) return;
+    names.push(name);
+    input.value = "";
+    renderNames();
+  }
+
+  function renderNames() {
+    const list = document.getElementById("nameList");
+    list.innerHTML = "";
+    names.forEach(n => {
+      const li = document.createElement("li");
+      li.textContent = n;
+      list.appendChild(li);
+    });
+    document.getElementById("namesContinue").disabled = names.length !== playerCount;
+  }
+
+  function startReveal() {
+    spyIndex = Math.floor(Math.random() * playerCount);
+    location = locations[Math.floor(Math.random() * locations.length)];
+    revealIndex = 0;
+    prepareRevealScreen();
+    showScreen("screen-reveal");
+  }
+
+  function prepareRevealScreen() {
+    document.getElementById("revealName").textContent = names[revealIndex];
+    document.getElementById("roleText").textContent = "";
+    document.getElementById("revealButton").style.display = "block";
+    document.getElementById("nextButton").style.display = "none";
+  }
+
+  function showRole() {
+    const roleText = document.getElementById("roleText");
+    if (revealIndex === spyIndex) {
+      roleText.textContent = "You are the SPY.";
+    } else {
+      roleText.textContent = "Location: " + location;
+    }
+    document.getElementById("revealButton").style.display = "none";
+
+    if (revealIndex === playerCount - 1) {
+      document.getElementById("nextButton").textContent = "Start game";
+    } else {
+      document.getElementById("nextButton").textContent = "Next player";
+    }
+    document.getElementById("nextButton").style.display = "block";
+  }
+
+  function nextReveal() {
+    if (revealIndex === playerCount - 1) {
+      startTimer();
+    } else {
+      revealIndex++;
+      prepareRevealScreen();
+    }
+  }
+
+  function startTimer() {
+    showScreen("screen-timer");
+    let remaining = gameMinutes * 60;
+    const display = document.getElementById("timerDisplay");
+
+    timerInterval = setInterval(() => {
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      display.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+      remaining--;
+      if (remaining < 0) {
+        clearInterval(timerInterval);
+        endGame();
+      }
+    }, 1000);
+  }
+
+  function endGame() {
+    showScreen("screen-final");
+    document.getElementById("finalLocation").textContent = "Location was: " + location;
+    document.getElementById("finalSpy").textContent = "The spy was: " + names[spyIndex];
+    const audio = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+    audio.play();
+  }
+
+  function restart() {
+    names = [];
+    renderNames();
+    showScreen("screen-count");
+  }
+</script>
+
+</body>
+</html>
